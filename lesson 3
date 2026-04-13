@@ -1,1 +1,87 @@
+# Задание 1. Создать ряд функций для проведения математических вычислений:
+# функция вычисления факториала числа
+def factorial(n):
+    if n < 0:
+        raise ValueError("необходимо положительное число")
+    if n == 0:
+        return 1
+    result = 1
+    for i in range(1, n + 1):
+        result *= i
+    return result
 
+# функция вычисления наибольшего числа из трех
+   def max_of_three(numbers):
+    if len(numbers) != 3:
+        raise ValueError("Должно быть ровно три числа")
+    a, b, c = numbers
+    # Сравниваем попарно
+    greatest = a
+    if b > greatest:
+        greatest = b
+    if c > greatest:
+        greatest = c
+    return greatest
+
+# функция вычисления площади прямоугольного треугольника
+def right_triangle_area(a, b):
+    """
+    Принимает длины катетов a и b, возвращает площадь прямоугольного треугольника.
+    Формула: (a * b) / 2
+    """
+    if a <= 0 or b <= 0:
+        raise ValueError("Длины катетов должны быть положительными числами")
+    return (a * b) / 2
+
+
+Задание 2
+# Создать функцию для генерации текста с адресом суда
+
+from lesson_2_data import courts, respondent_data, case_number  # импорт данных из файла
+
+def generate_header(respondent, case_num):
+    """
+    Генерирует шапку процессуального документа.
+    
+    Аргументы:
+        respondent (dict): словарь с данными ответчика (ключи: name, inn, ogrn/ogrnip, address)
+        case_num (str): номер дела, например "А40-123456/2023"
+    
+    Возвращает:
+        str: сформированная шапка документа
+    """
+    # Извлекаем код суда из номера дела (буква А и следующие две цифры)
+    # Пример: "А40-123456/2023" -> код "40"
+    court_code = case_num[1:3]  # берём символы после 'А'
+    
+    # Получаем данные суда из словаря courts (импортированного из lesson_2_data.py)
+    court = courts.get(court_code)
+    if not court:
+        raise ValueError(f"Суд с кодом {court_code} не найден в базе судов")
+court_name = court["name"]
+    court_address = court["address"]
+    
+    # Данные истца (свои)
+    plaintiff = {
+        "name": "Пупкин Василий Геннадьевич",
+        "inn": "1236182357",
+        "ogrnip": "218431927812733",  # для ИП
+        "address": "123534, г. Москва, ул. Водников, 13"
+    }
+    
+    # Определяем тип регистрации ответчика (ОГРН или ОГРНИП)
+    respondent_ogrn_key = "ogrn" if "ogrn" in respondent else "ogrnip"
+    respondent_ogrn = respondent.get(respondent_ogrn_key, "")
+    
+    # Формируем шапку с помощью f-string
+    header = f"""В {court_name}
+Адрес: {court_address}
+Истец: {plaintiff["name"]}
+ИНН {plaintiff["inn"]} ОГРНИП {plaintiff["ogrnip"]}
+Адрес: {plaintiff["address"]}
+Ответчик: {respondent["name"]}
+ИНН {respondent["inn"]} {respondent_ogrn_key.upper()} {respondent_ogrn}
+Адрес: {respondent["address"]}
+Номер дела {case_num}"""
+    
+    return header
