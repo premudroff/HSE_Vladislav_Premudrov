@@ -1,1 +1,273 @@
+class CourtCase:
+    """Судебное дело: номер, участники, заседания, решение."""
+    
+    # Атрибут класса — общий для всех дел
+    court_system = "Арбитражные суды РФ"
+    total_cases = 0
+    
+    def __init__(self, case_number, participants=None, listening_datetimes=None):
+        """
+        Конструктор экземпляра.
+        
+        Аргументы:
+            case_number (str): Номер дела (обязательный)
+            participants (list, optional): Список участников. По умолчанию None.
+            listening_datetimes (list, optional): Список дат заседаний. По умолчанию None.
+        """
+        # Увеличиваем общий счётчик дел
+        CourtCase.total_cases += 1
+        
+        # Обязательный атрибут
+        self.case_number = case_number
+        
+        # Списки создаём через None, чтобы избежать общей ссылки
+        self.case_participants = participants if participants is not None else []
+        self.listening_datetimes = listening_datetimes if listening_datetimes is not None else []
+        
+        # Атрибуты с значениями по умолчанию
+        self.is_finished = False
+        self.verdict = ""
+    
+    # ─── Методы для работы с заседаниями ───
+    
+    def set_a_listening_datetime(self, datetime_str):
+        """
+        Добавляет дату и время судебного заседания.
+        
+        Аргументы:
+            datetime_str (str): Дата и время заседания в формате "ГГГГ-ММ-ДД ЧЧ:ММ"
+        
+        Возвращает:
+            bool: True, если заседание добавлено, иначе False
+        """
+        # Проверка, что дело не завершено
+        if self.is_finished:
+            print(f"❌ Дело {self.case_number} уже завершено. Нельзя добавить заседание.")
+            return False
+        
+        # Простая валидация формата даты
+        # Можно расширить до полноценной проверки с datetime
+        if not datetime_str or not isinstance(datetime_str, str):
+            print(f"❌ Некорректная дата: {datetime_str}")
+            return False
+        
+        # Проверяем, не дублируется ли заседание
+        if datetime_str in self.listening_datetimes:
+            print(f"⚠️ Заседание на {datetime_str} уже запланировано")
+            return False
+        
+        # Добавляем заседание
+        self.listening_datetimes.append(datetime_str)
+        print(f"✅ Дело {self.case_number}: заседание добавлено на {datetime_str}")
+        return True
+    
+    # ─── Методы для работы с участниками ───
+    
+    def add_participant(self, inn):
+        """
+        Добавляет участника дела по ИНН.
+        
+        Аргументы:
+            inn (str): ИНН участника (10 или 12 цифр)
+        
+        Возвращает:
+            bool: True, если участник добавлен, иначе False
+        """
+        # Проверка, что дело не завершено
+        if self.is_finished:
+            print(f"❌ Дело {self.case_number} уже завершено. Нельзя добавить участника.")
+            return False
+        
+        # Валидация ИНН (как в классе Contract из первой части)
+        if not inn.isdigit():
+            print(f"❌ ИНН должен состоять из цифр: {inn}")
+            return False
+        
+        if len(inn) not in (10, 12):
+            print(f"❌ ИНН — 10 или 12 цифр, получено {len(inn)}")
+            return False
+        
+        # Проверка на дубликат
+        if inn in self.case_participants:
+            print(f"⚠️ Участник {inn} уже добавлен в дело {self.case_number}")
+            return False
+        
+        # Добавляем участника
+        self.case_participants.append(inn)
+        print(f"✅ Дело {self.case_number}: участник {inn} добавлен")
+        return True
+    
+    def remove_participant(self, inn):
+        """
+        Удаляет участника из дела по ИНН.
+        
+        Аргументы:
+            inn (str): ИНН участника для удаления
+        
+        Возвращает:
+            bool: True, если участник удалён, иначе False
+        """
+        # Проверка, что дело не завершено
+        if self.is_finished:
+            print(f"❌ Дело {self.case_number} уже завершено. Нельзя удалить участника.")
+            return False
+        
+        # Поиск и удаление участника
+        if inn in self.case_participants:
+            self.case_participants.remove(inn)
+            print(f"✅ Дело {self.case_number}: участник {inn} удалён")
+            return True
+        else:
+            print(f"❌ Участник {inn} не найден в деле {self.case_number}")
+            return False
+    
+    # ─── Методы для вынесения решения ───
+    
+    def make_a_decision(self, verdict_text):
+        """
+        Выносит решение по делу.
+        
+        Аргументы:
+            verdict_text (str): Текст решения суда
+        
+        Возвращает:
+            bool: True, если решение вынесено, иначе False
+        """
+        # Проверка, что дело ещё не завершено
+        if self.is_finished:
+            print(f"⚠️ Дело {self.case_number} уже завершено. Решение: {self.verdict}")
+            return False
+        
+        # Проверка, что решение не пустое
+        if not verdict_text or not isinstance(verdict_text, str):
+            print(f"❌ Некорректный текст решения: {verdict_text}")
+            return False
+        
+        # Выносим решение
+        self.verdict = verdict_text
+        self.is_finished = True
+        print(f"⚖️ Дело {self.case_number}: решение вынесено — \"{verdict_text}\"")
+        return True
+    
+    # ─── Магические методы ───
+    
+    def __str__(self):
+        """
+        Человекочитаемое представление дела.
+        Используется в print(), str(), f-строках.
+        """
+        status = "Завершено" if self.is_finished else "В работе"
+        participants_count = len(self.case_participants)
+        hearings_count = len(self.listening_datetimes)
+        
+        return (f"Дело {self.case_number} | Статус: {status} | "
+                f"Участников: {participants_count} | Заседаний: {hearings_count}")
+    
+    def __repr__(self):
+        """
+        Техническое представление для разработчиков.
+        Используется в интерактивной среде и при отладке.
+        """
+        return (f"CourtCase(case_number='{self.case_number}', "
+                f"participants={self.case_participants}, "
+                f"hearings={self.listening_datetimes})")
+    
+    def __eq__(self, other):
+        """
+        Сравнение дел по смыслу.
+        Два дела считаются равными, если совпадают номера.
+        """
+        if not isinstance(other, CourtCase):
+            return False
+        return self.case_number == other.case_number
 
+
+# ─── ДЕМОНСТРАЦИЯ РАБОТЫ ───
+
+print("=" * 60)
+print("Создание дел")
+print("=" * 60)
+
+# Создаём дела
+case1 = CourtCase("А40-123/2024")
+case2 = CourtCase("А40-456/2024", participants=["7707083893"])
+
+print(f"\nДело 1: {case1}")
+print(f"Дело 2: {case2}")
+
+print("\n" + "=" * 60)
+print("Добавление участников")
+print("=" * 60)
+
+case1.add_participant("7707083893")  # ООО Ромашка
+case1.add_participant("7701345678")  # ООО Лютик
+case1.add_participant("123")          # ❌ невалидный ИНН
+case1.add_participant("7707083893")   # ⚠️ уже есть
+
+print("\n" + "=" * 60)
+print("Добавление заседаний")
+print("=" * 60)
+
+case1.set_a_listening_datetime("2024-03-15 10:00")
+case1.set_a_listening_datetime("2024-04-20 14:30")
+case1.set_a_listening_datetime("2024-03-15 10:00")  # ⚠️ дубликат
+
+print("\n" + "=" * 60)
+print("Удаление участников")
+print("=" * 60)
+
+case1.remove_participant("7701345678")  # удаляем ООО Лютик
+case1.remove_participant("9999999999")  # ❌ не найден
+
+print("\n" + "=" * 60)
+print("Вынесение решения")
+print("=" * 60)
+
+case1.make_a_decision("Отказать в иске в полном объёме")
+case1.make_a_decision("Повторное решение")  # ⚠️ уже завершено
+
+print("\n" + "=" * 60)
+print("Попытка изменить завершённое дело")
+print("=" * 60)
+
+case1.add_participant("7701111111")      # ❌ дело завершено
+case1.set_a_listening_datetime("2024-05-01 11:00")  # ❌ дело завершено
+
+print("\n" + "=" * 60)
+print("Проверка атрибутов")
+print("=" * 60)
+
+print(f"Дело 1: {case1}")
+print(f"  Номер: {case1.case_number}")
+print(f"  Участники: {case1.case_participants}")
+print(f"  Заседания: {case1.listening_datetimes}")
+print(f"  Завершено: {case1.is_finished}")
+print(f"  Решение: {case1.verdict}")
+
+print(f"\nДело 2: {case2}")
+print(f"  Участники: {case2.case_participants}")
+print(f"  Завершено: {case2.is_finished}")
+
+print("\n" + "=" * 60)
+print("Статистика по классу")
+print("=" * 60)
+
+print(f"Всего создано дел: {CourtCase.total_cases}")
+print(f"Судебная система: {CourtCase.court_system}")
+
+print("\n" + "=" * 60)
+print("Магический метод __eq__")
+print("=" * 60)
+
+case3 = CourtCase("А40-123/2024")  # тот же номер, что и case1
+print(f"case1 == case3: {case1 == case3}")  # True — одинаковый номер
+
+case4 = CourtCase("А40-999/2024")
+print(f"case1 == case4: {case1 == case4}")  # False — разные номера
+
+print("\n" + "=" * 60)
+print("Проверка типов (isinstance)")
+print("=" * 60)
+
+print(f"case1 is CourtCase: {isinstance(case1, CourtCase)}")
+print(f"case1 is dict: {isinstance(case1, dict)}")  # False — теперь это не словарь!
