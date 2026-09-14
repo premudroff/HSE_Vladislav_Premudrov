@@ -7,8 +7,8 @@ print(f"Первые 10: {numbers[:10]}")
 # Задание 2. Генерация массива через range
 dicts = [
     {
-        "num_1": random.randint(1, 1_000_000),
-        "num_2": random.randint(1, 1_000_000),
+        "num_1": random.randint(1, 1000000),
+        "num_2": random.randint(1, 1000000),
     }
     for _ in range(N)
 ]
