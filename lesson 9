@@ -1,0 +1,60 @@
+#Задание 1. Генерация отсортированного массива от 10 до 250 млн
+# Случайный шаг от 3 до 5
+step = random.randint(3, 5)
+print(f"Шаг: {step}")
+
+# Отсортированная последовательность от 10 до 250_000_000
+arr = range(10, 250_000_000, step)
+
+#Задание 2. Генерация 10 случайных чисел через list comprehension
+random_numbers = [random.randint(10, 250_000_000) for _ in range(10)]
+print("Случайные числа:", random_numbers)
+
+#Задание 3. Функция линейного поиска
+def linear_search(sequence, x):
+    """Линейный поиск. Возвращает индекс или -1."""
+    for i, val in enumerate(sequence):
+        if val == x:
+            return i
+    return -1
+
+#Задание 4. Функция бинарного поиска
+def binary_search(sequence, x):
+    """Бинарный поиск в отсортированной последовательности. Возвращает индекс или -1."""
+    left, right = 0, len(sequence) - 1
+    while left <= right:
+        middle = (left + right) // 2
+        if sequence[middle] == x:
+            return middle
+        elif sequence[middle] > x:
+            right = middle - 1
+        else:
+            left = middle + 1
+    return -1
+
+#Задание 5. Проверка наличия чисел и замер времени
+print("=" * 60)
+print("ЛИНЕЙНЫЙ ПОИСК")
+print("=" * 60)
+
+start = time.perf_counter()
+for num in random_numbers:
+    idx = linear_search(arr, num)
+    print(f"Число {num:>12,}: индекс {idx}")
+elapsed_linear = time.perf_counter() - start
+print(f"\nОбщее время линейного поиска: {elapsed_linear:.4f} сек")
+
+print("\n" + "=" * 60)
+print("БИНАРНЫЙ ПОИСК")
+print("=" * 60)
+
+start = time.perf_counter()
+for num in random_numbers:
+    idx = binary_search(arr, num)
+    print(f"Число {num:>12,}: индекс {idx}")
+elapsed_binary = time.perf_counter() - start
+print(f"\nОбщее время бинарного поиска: {elapsed_binary:.4f} сек")
+
+print("\n" + "=" * 60)
+print(f"Бинарный поиск быстрее в ~{elapsed_linear / elapsed_binary:.0f} раз")
+print("=" * 60)
