@@ -1,1 +1,62 @@
+# Задание 1. Массив из 100 000 целых чисел
+numbers = [random.randint(1, 1_000_000) for _ in range(N)]
 
+print(f"Сгенерирован массив numbers: {len(numbers):,} элементов")
+print(f"Первые 10: {numbers[:10]}")
+
+# Задание 2. Генерация массива через range
+dicts = [
+    {
+        "num_1": random.randint(1, 1_000_000),
+        "num_2": random.randint(1, 1_000_000),
+    }
+    for _ in range(N)
+]
+
+print(f"Сгенерирован массив dicts: {len(dicts):,} элементов")
+print(f"Первые 3: {dicts[:3]}")
+
+# Задание 3. Сортировка пузырьком
+def bubble_sort(arr):
+    """Сортировка пузырьком (по возрастанию). Меняет список на месте."""
+    n = len(arr)
+    for i in range(n):
+        swapped = False
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                swapped = True
+        if not swapped:
+            break
+    return arr
+
+
+# Сортировка первого массива
+start = time.perf_counter()
+bubble_sort(numbers)
+elapsed_bubble = time.perf_counter() - start
+
+print(f"Пузырёк на {N:,} элементах: {elapsed_bubble:.2f} сек")
+print(f"Первые 10 после сортировки: {numbers[:10]}")
+
+# Задание 4. Военная сортировка списка словарей:
+# сначала по num_1, при равенстве — по num_2
+start = time.perf_counter()
+dicts.sort(key=lambda x: (x["num_1"], x["num_2"]))
+elapsed_sort = time.perf_counter() - start
+
+print(f".sort() на {N:,} элементах: {elapsed_sort:.4f} сек")
+print("Первые 3 после сортировки:")
+for item in dicts[:3]:
+    print(item)
+
+# Проверка первого массива
+is_numbers_sorted = all(numbers[i] <= numbers[i + 1] for i in range(len(numbers) - 1))
+print(f"numbers отсортирован? {is_numbers_sorted}")
+
+# Проверка второго массива
+is_dicts_sorted = all(
+    (dicts[i]["num_1"], dicts[i]["num_2"]) <= (dicts[i + 1]["num_1"], dicts[i + 1]["num_2"])
+    for i in range(len(dicts) - 1)
+)
+print(f"dicts отсортирован по (num_1, num_2)? {is_dicts_sorted}")
